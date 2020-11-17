@@ -1,5 +1,6 @@
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
+from random import randint
 import time
 
 options = webdriver.ChromeOptions()
@@ -15,5 +16,5 @@ while not queue:
     if body.get_attribute('class') == 'queue challenge':
         queue = True
     else:
-        time.sleep(10)
+        time.sleep(randint(4, 10))
         sel.refresh()
