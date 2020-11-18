@@ -30,9 +30,9 @@ while not queue:
     body = sel.find_element_by_tag_name('body')
     if body.get_attribute('class') == 'queue challenge':
         queue = True
-        say("ps5 queue is active")
+        say('ps5 queue is active')
     elif body.get_attribute('class') == 'softblock':
-        say("captcha-challenge block")
+        say('captcha-challenge block')
         time.sleep(CAPTCHA_TIME_ALLOWANCE) # allow 20 seconds to solve captcha before attempting to refresh
     else:
         schedule_refresh()
