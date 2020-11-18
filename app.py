@@ -16,7 +16,6 @@ def say(message, repeat=1):
 def schedule_refresh():
     time.sleep(randint(4, 10))
     sel.refresh()
-    print('refreshing')
 
 options = webdriver.ChromeOptions()
 options.add_argument('--ignore-certificate-errors')
@@ -33,6 +32,10 @@ while not queue:
         say('ps5 queue is active')
     elif body.get_attribute('class') == 'softblock':
         say('captcha-challenge block')
-        time.sleep(CAPTCHA_TIME_ALLOWANCE) # allow 20 seconds to solve captcha before attempting to refresh
+        time.sleep(CAPTCHA_TIME_ALLOWANCE)
     else:
+        try:
+            button = sel.find_element_by_xpath('//button[@class="error-modal-popup__cta js-global-error-message-cta"]').click()
+        except:
+            pass
         schedule_refresh()
