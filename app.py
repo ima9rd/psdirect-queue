@@ -30,6 +30,7 @@ while not queue:
     if body.get_attribute('class') == 'queue challenge':
         queue = True
         say('ps5 queue is active')
+        input()
     elif body.get_attribute('class') == 'softblock':
         say('captcha-challenge block')
         time.sleep(CAPTCHA_TIME_ALLOWANCE)
