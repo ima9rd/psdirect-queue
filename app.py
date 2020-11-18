@@ -35,12 +35,4 @@ while not queue:
         say("captcha-challenge block")
         time.sleep(CAPTCHA_TIME_ALLOWANCE) # allow 20 seconds to solve captcha before attempting to refresh
     else:
-        try:
-            add_to_cart_button = sel.find_element_by_class_name('add-to-cart') # first add-to-cart button
-            if "hide" not in add_to_cart_button.get_attribute('class'):
-                say("ps5 is potentially available for purchase!", 3)
-            else:
-                schedule_refresh()
-        
-        except common.exceptions.NoSuchElementException:
-            schedule_refresh()
+        schedule_refresh()
