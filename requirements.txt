@@ -1,4 +1,4 @@
-pyttsx3==2.90
+pyttsx3==2.71
 selenium==3.141.0
 chromedriver-py==86.0.4240.22
 webdriver-manager==3.2.2
