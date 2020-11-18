@@ -31,7 +31,7 @@ while not queue:
     if body.get_attribute('class') == 'queue challenge':
         queue = True
         say("ps5 queue is active")
-    if body.get_attribute('class') == 'softblock':
+    elif body.get_attribute('class') == 'softblock':
         say("captcha-challenge block")
         time.sleep(CAPTCHA_TIME_ALLOWANCE) # allow 20 seconds to solve captcha before attempting to refresh
     else:
