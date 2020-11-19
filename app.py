@@ -14,6 +14,7 @@ def say(message, repeat=1):
         speakengine.runAndWait()
 
 def schedule_refresh():
+    sel.delete_all_cookies()
     time.sleep(randint(4, 10))
     sel.refresh()
 
