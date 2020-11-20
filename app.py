@@ -103,6 +103,7 @@ while not queue:
                 clean_up_extensions()
                 sel.maximize_window()
                 say('ps5 queue is active')
+                input()
             elif body.get_attribute('class') == 'softblock':
                 say('captcha-challenge block')
                 sel.maximize_window()
