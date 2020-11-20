@@ -97,7 +97,8 @@ while not queue:
         if queue:
             pass
         else:
-            sel.get('http://direct.playstation.com/en-us/ps5')
+            if sel.current_url == 'data:,':
+                sel.get('https://direct.playstation.com/en-us/ps5')
             body = sel.find_element_by_tag_name('body')
             if body.get_attribute('class') == 'queue challenge':
                 queue = True
@@ -112,3 +113,4 @@ while not queue:
                 time.sleep(CAPTCHA_PAUSE_DURATION)
             else:
                 time.sleep(PAUSE_DURATION)
+                sel.get('https://direct.playstation.com/en-us/ps5')
