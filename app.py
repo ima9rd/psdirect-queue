@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import pyttsx3
@@ -103,23 +104,26 @@ while not queue:
         if queue:
             pass
         else:
-            if sel.current_url == 'data:,' or not captcha:
-                sel.get('https://direct.playstation.com/en-us/ps5')
-            body = sel.find_element_by_tag_name('body')
-            if body.get_attribute('class') == 'queue challenge':
-                queue = True
-                close_losers(sel, browsers)
-                clean_up_extensions()
-                sel.maximize_window()
-                say('ps5 queue is active')
-                input()
-            elif body.get_attribute('class') == 'softblock':
-                say('captcha-challenge block')
-                if not captcha:
-                    captcha = True
-                    sel.maximize_window()                    
-                time.sleep(CAPTCHA_PAUSE_DURATION)
-            else:
-                captcha = False
-                time.sleep(PAUSE_DURATION)
+            try:
+                if sel.current_url == 'data:,' or not captcha:
+                    sel.get('https://direct.playstation.com/en-us/ps5')
+                body = sel.find_element_by_tag_name('body')
+                if body.get_attribute('class') == 'queue challenge':
+                    queue = True
+                    close_losers(sel, browsers)
+                    clean_up_extensions()
+                    sel.maximize_window()
+                    say('ps5 queue is active')
+                    input()
+                elif body.get_attribute('class') == 'softblock':
+                    say('captcha-challenge block')
+                    if not captcha:
+                        captcha = True
+                        sel.maximize_window()                                      
+                    time.sleep(CAPTCHA_PAUSE_DURATION)
+                else:
+                    captcha = False
+                    time.sleep(PAUSE_DURATION)
+            except WebDriverException:
+                pass
                 
