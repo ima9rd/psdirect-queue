@@ -18,10 +18,16 @@ def say(message: str, repeat: int=1) -> None:
         speakengine.say(message)
         speakengine.runAndWait()
 
-def spawn_proxy_browser(proxy_address: str, proxy_port:str, proxy_user: str, proxy_pass: str, index: int) -> webdriver.Chrome:
+def spawn_browser(proxy_dict: dict, index: int) -> webdriver.Chrome:
     options = webdriver.ChromeOptions()
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
+    if len(proxy_dict['ip_address']) > 0:
+        plugin_file = create_proxy_extension(proxy_dict, index)
+        options.add_extension(plugin_file)
+    return webdriver.Chrome(ChromeDriverManager().install(), options=options)
+
+def create_proxy_extension(proxy_dict: dict, index: int) -> str:
     manifest_json = """
         {
             "version": "1.0.0",
@@ -48,8 +54,8 @@ def spawn_proxy_browser(proxy_address: str, proxy_port:str, proxy_user: str, pro
                 rules: {{
                 singleProxy: {{
                     scheme: "http",
-                    host: "{proxy_address}",
-                    port: parseInt({proxy_port})
+                    host: "{proxy_dict['ip_address']}",
+                    port: parseInt({proxy_dict['port']})
                 }},
                 bypassList: ["localhost"]
                 }}
@@ -60,8 +66,8 @@ def spawn_proxy_browser(proxy_address: str, proxy_port:str, proxy_user: str, pro
         function callbackFn(details) {{
             return {{
                 authCredentials: {{
-                    username: "{proxy_user}",
-                    password: "{proxy_pass}"
+                    username: "{proxy_dict['username']}",
+                    password: "{proxy_dict['password']}"
                 }}
             }};
         }}
@@ -72,12 +78,11 @@ def spawn_proxy_browser(proxy_address: str, proxy_port:str, proxy_user: str, pro
                     ['blocking']
         );
         """
-    pluginfile = f'proxy_auth_plugin_{index}.zip'
-    with zipfile.ZipFile(pluginfile, 'w') as zp:
+    plugin_file = f'proxy_auth_plugin_{index}.zip'
+    with zipfile.ZipFile(plugin_file, 'w') as zp:
         zp.writestr("manifest.json", manifest_json)
         zp.writestr("background.js", background_js)
-    options.add_extension(pluginfile)
-    return webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    return plugin_file
 
 def close_losers(winner: webdriver.Chrome, browsers: list) -> None:
     for browser in browsers:
@@ -90,14 +95,15 @@ def clean_up_extensions() -> None:
 
 browsers = list()
 for i, prox in enumerate(PROXY_LIST):
-    browsers.append(spawn_proxy_browser(prox['ip_address'], prox['port'], prox['username'], prox['password'], i))
+    browsers.append(spawn_browser(prox, i))
 queue = False
+captcha = False
 while not queue:
     for sel in browsers:
         if queue:
             pass
         else:
-            if sel.current_url == 'data:,':
+            if sel.current_url == 'data:,' or not captcha:
                 sel.get('https://direct.playstation.com/en-us/ps5')
             body = sel.find_element_by_tag_name('body')
             if body.get_attribute('class') == 'queue challenge':
@@ -109,8 +115,11 @@ while not queue:
                 input()
             elif body.get_attribute('class') == 'softblock':
                 say('captcha-challenge block')
-                sel.maximize_window()
+                if not captcha:
+                    captcha = True
+                    sel.maximize_window()                    
                 time.sleep(CAPTCHA_PAUSE_DURATION)
             else:
+                captcha = False
                 time.sleep(PAUSE_DURATION)
-                sel.get('https://direct.playstation.com/en-us/ps5')
+                
