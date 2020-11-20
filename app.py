@@ -9,6 +9,8 @@ import os
 
 PROXY_LIST = [{'ip_address': '', 'port': '', 'username': '', 'password': ''}]
 PAUSE_DURATION = 5
+CAPTCHA_PAUSE_DURATION = 30
+
 speakengine = pyttsx3.init()
 
 def say(message: str, repeat: int=1) -> None:
@@ -107,5 +109,6 @@ while not queue:
             elif body.get_attribute('class') == 'softblock':
                 say('captcha-challenge block')
                 sel.maximize_window()
+                time.sleep(CAPTCHA_PAUSE_DURATION)
             else:
                 time.sleep(PAUSE_DURATION)
