@@ -7,9 +7,11 @@ import glob
 import os
 
 
+PROXY_LIST = [{'ip_address': '', 'port': '', 'username': '', 'password': ''}]
+PAUSE_DURATION = 5
 speakengine = pyttsx3.init()
 
-def say(message, repeat=1):
+def say(message: str, repeat: int=1) -> None:
     for i in range(repeat):
         speakengine.say(message)
         speakengine.runAndWait()
@@ -75,19 +77,17 @@ def spawn_proxy_browser(proxy_address: str, proxy_port:str, proxy_user: str, pro
     options.add_extension(pluginfile)
     return webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
-def close_losers(winner, browsers):
+def close_losers(winner: webdriver.Chrome, browsers: list) -> None:
     for browser in browsers:
         if browser != winner:
             browser.close()
 
-def clean_up_extensions():
+def clean_up_extensions() -> None:
     for f in glob.glob('proxy_auth_plugin_*.zip'):
         os.remove(f)
 
-proxy_list = [{'ip_address': '', 'port': '', 'username': '', 'password': ''}]
-
 browsers = list()
-for i, prox in enumerate(proxy_list):
+for i, prox in enumerate(PROXY_LIST):
     browsers.append(spawn_proxy_browser(prox['ip_address'], prox['port'], prox['username'], prox['password'], i))
 queue = False
 while not queue:
@@ -101,10 +101,10 @@ while not queue:
                 queue = True
                 close_losers(sel, browsers)
                 clean_up_extensions()
+                sel.maximize_window()
                 say('ps5 queue is active')
             elif body.get_attribute('class') == 'softblock':
                 say('captcha-challenge block')
                 sel.maximize_window()
             else:
-                sel.maximize_window()
-                time.sleep(5)
+                time.sleep(PAUSE_DURATION)
